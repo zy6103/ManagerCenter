@@ -106,3 +106,5 @@ pymysql 0.9.2
     9：使用新建账号登录页面后，即可看到 app01菜单。
 
 另外说明：configCenter 里的custom_admin 是我重写了admin的常用功能，已完成使用上的配置，不需要修改。
+
+temp
