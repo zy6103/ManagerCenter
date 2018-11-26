@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统登录</title>
+
+    <!--Bootstrap Stylesheet [ REQUIRED ]-->
+    <link href="/static/plugin/nifty/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <!--Nifty Stylesheet [ REQUIRED ]-->
+    <link href="/static/plugin/nifty/css/nifty.min.css" rel="stylesheet">
+
+
+</head>
+<body class="nifty-ready  pace-done">
+<div class="pace  pace-inactive">
+    <div class="pace-progress" data-progress-text="100%" data-progress="99" style="width: 100%;">
+        <div class="pace-progress-inner"></div>
+    </div>
+    <div class="pace-activity"></div>
+</div>
+<div id="container" class="cls-container">
+
+    <!-- BACKGROUND IMAGE -->
+    <!--===================================================-->
+    <div id="bg-overlay" class="bg-img img-balloon"
+         style="background-image:url('/static/plugin/nifty/img/sky.jpg')"></div>
+
+
+    <!-- HEADER -->
+    <!--===================================================-->
+    <div class="cls-header cls-header-lg">
+        <div class="cls-brand">
+            <h1 class="error-code text-warning" style="margin-top:50%;">自动化运维系统</h1>
+        </div>
+    </div>
+    <!--===================================================-->
+
+
+    <!-- LOGIN FORM -->
+    <!--===================================================-->
+    <div class="cls-content">
+        <div class="cls-content-sm panel">
+            <div class="panel-body">
+                <p class="pad-btm">系统登录页面</p>
+                <form action="{% url 'acc_login' %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-addon"><i class="fa fa-user"></i></div>
+                            <input type="email" class="form-control" placeholder="E-mail" name="logname">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-addon"><i class="fa fa-asterisk"></i></div>
+                            <input type="password" class="form-control" placeholder="Password" name="passwd">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-lg btn-block" type="submit">
+                        <i class="fa fa-facebook fa-fw"></i> 登  录
+                    </button>
+                    <span style="color:red">{{ errors.error }}</span>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!--===================================================-->
+
+</div>
+
+<!--jQuery [ REQUIRED ]-->
+<script src="/static/plugin/nifty/js/jquery-2.1.1.min.js"></script>
+
+<!--BootstrapJS [ RECOMMENDED ]-->
+<script src="/static/plugin/nifty/js/bootstrap.min.js"></script>
+
+<!--Fast Click [ OPTIONAL ]-->
+{#	<script src="plugins/fast-click/fastclick.min.js"></script>#}
+
+<!--Nifty Admin [ RECOMMENDED ]-->
+<script src="/static/plugin/nifty/js/nifty.min.js"></script>
+
+</body>
+</html>

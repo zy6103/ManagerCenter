@@ -1,0 +1,100 @@
+{% extends 'index.html' %}
+
+{% load  config_tags %}
+
+{% block container %}
+
+    {#    删除按钮对话框#}
+    <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">×</span></button>
+                    <h4 class="modal-title" id="mySmallModalLabel">删除再次确认</h4>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" onclick="DeleteData()">确认</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div>
+
+    <div class="panel">
+        <div class="panel-heading">
+            <h3 class="panel-title">{% get_model_name admin_class %}</h3>
+            {#            级联链接#}
+            {% url_link request.path %}
+        </div>
+
+        <div class="panel-body" style="margin-top:20px;">
+            <form class="form-horizontal" role="form" method="get">
+                {% if admin_class.list_filters %}
+                    <div class="form-group">
+                        {% for filter_field in admin_class.list_filters %}
+                            <div class="col-lg-2">{% render_filter_ele filter_field admin_class filter_conditions %}</div>
+                        {% endfor %}
+                        <button type="SUBMIT" class="btn btn-success">搜索</button>
+                    </div>
+                {% endif %}
+                {% if admin_class.search_filters %}
+                    <div class="form-group">
+                        <div class="col-lg-6">
+                            <input type="search" name="_q" class="form-control" value="{{ search_text }}"
+                                   placeholder="查找字段:{% for search_field in admin_class.search_filters %} {{ search_field }},{% endfor %}">
+                        </div>
+                        <button type="SUBMIT" class="btn btn-success">查找</button>
+                    </div>
+                {% endif %}
+            </form>
+            <div class="panel-body">
+                <div class="bootstrap-table">
+                    <div class="btn-group btn-group-sm">
+                        <a href="{{ request.path }}add/" class="btn btn-success btn-active-dark">Add</a>
+                        <button type="button" class="btn btn-danger btn-active-dark" data-toggle="modal"
+                                data-target=".bs-example-modal-sm">Delete
+                        </button>
+                    </div>
+                    <div class="fixed-table-container">
+                        <div class="fixed-table-body">
+                            <table id="demo-custom-toolbar" class="demo-add-niftycheck table table-striped">
+                                <thead>
+                                <tr>
+                                    <th style="width: 35px;"><input type="checkbox" onclick="CheckAllToggle(this)"></th>
+                                    {% for column in admin_class.list_display %}
+                                        {% build_table_header_column column orderby_key filter_conditions admin_class %}
+                                    {% endfor %}
+                                </thead>
+                                <tfoot>
+                                <tr>
+                                    <td></td>
+                                    <td>总计：{{ query_sets.paginator.count }}条</td>
+                                </tr>
+                                </tfoot>
+
+                                <tbody>
+                                {% for obj in query_sets %}
+                                    <tr class="no-records-found">
+                                        <td><input tag="obj_checkbox" type="checkbox" value="{{ obj.id }}"></td>
+                                        {% build_table_row request obj admin_class %}
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <nav aria-label="...">
+                        <ul class="pagination">
+                            {% build_paginatora query_sets filter_conditions privious_orderby search_text %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}

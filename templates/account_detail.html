@@ -1,0 +1,31 @@
+{% extends 'index.html' %}
+{% load  config_tags %}
+
+{% block container %}
+    <div class="panel">
+        <div class="panel-body">
+            <div class="bootstrap-table">
+                <div class="fixed-table-container">
+                    <div class="fixed-table-body">
+                        <table id="demo-custom-toolbar" class="demo-add-niftycheck table table-striped">
+                            <thead>
+                            <tr>
+                                <th colspan="2"><h3 class="text-center">当前账户详细信息</h3></th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            {% for field in form_obj %}
+                                <tr style="vertical-align: middle;">
+                                    <td style="vertical-align: middle;">{{ field.label }}</td>
+                                    <td style="vertical-align: middle;">{% account_detail field %}</td>
+                                </tr>
+                               {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

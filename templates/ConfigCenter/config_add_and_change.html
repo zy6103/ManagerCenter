@@ -1,0 +1,231 @@
+{% extends 'configcenter/config_index.html' %}
+{% load  config_tags %}
+
+{% block css %}
+    <style type="text/css">
+        .filter-select-box {
+            height: 100px;
+        !important;
+            width: 100%;
+            border-radius: 3%;
+        }
+    </style>
+
+{% endblock %}
+
+{% block container %}
+    <div class="panel">
+        <div class="panel-heading">
+            <h3 class="panel-title">{% get_model_name admin_class %}</h3>
+            {% url_link request.path %}
+        </div>
+
+        <div class="panel-body" style="margin-top:30px;">
+            <form class="form-horizontal" action="{{ request.path }}" role="form" method="post"
+                  onsubmit="return SelectAllChosenData()">{% csrf_token %}
+                {% for field in form_obj %}
+                    {% if field.name == 'roles' %}
+                        <div class="form-group">
+                            {% get_m2m_obj_list admin_class field form_obj as m2m_obj_list %}
+                            <label class="col-sm-2 control-label">角色</label>
+                            <div class="col-sm-2">
+                                <span>可选角色</span>
+                                <select id="id_{{ field.name }}_from" multiple class="filter-select-box" size="10">
+                                    {% if field.name in admin_class.readonly_field and not admin_class.is_add_form %}
+                                        {% for obj in m2m_obj_list %}
+                                            <option value={{ obj.id }} disabled>{{ obj }}</option>
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for obj in m2m_obj_list %}
+                                            <option ondblclick="MoveElementTo(this, 'id_{{ field.name }}_to','id_{{ field.name }}_from')"
+                                                    value={{ obj.id }}>{{ obj }}</option>
+                                        {% endfor %}
+                                    {% endif %}
+                                </select>
+                            </div>
+                            <div class="col-sm-1" style="width:3.333333%;margin-top:40px;padding: 10px;">
+                                <button type="button" style="background-color: white;border:0px;"
+                                        onclick="S_To_D('{{ field.name }}')">
+                                    <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+                                </button>
+                                <button type="button" style="background-color: white;border:0px;"
+                                        onclick="D_To_S('{{ field.name }}')">
+                                    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                                </button>
+                            </div>
+
+                            {% get_m2m_selectd_obj_list form_obj field as selectd_obj_list %}
+                            <div class="col-sm-2">
+                                <span>当前存在角色</span>
+                                <select tag="roles_chosen_list" id="id_{{ field.name }}_to" name="{{ field.name }}"
+                                        multiple
+                                        class="filter-select-box" size="10">
+                                    {% if field.name in admin_class.readonly_field and not admin_class.is_add_form %}
+                                        {% for obj in selectd_obj_list %}
+                                            <option value={{ obj.id }} disabled>{{ obj }}</option>
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for obj in selectd_obj_list %}
+                                            <option value={{ obj.id }} ondblclick="MoveElementTo(this,'id_{{ field.name }}_from','id_{{ field.name }}_to')">{{ obj }}</option>
+                                        {% endfor %}
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+
+                    {% elif field.name == 'menu_level1' %}
+                        <div class="form-group">
+                            {% get_m2m_obj_list admin_class field form_obj as m2m_menu_list %}
+                            <label class="col-sm-2 control-label">一级菜单</label>
+                            <div class="col-sm-2">
+                                <span>可选一级菜单</span>
+                                <select name='source_perm' id="id_{{ field.name }}_from" multiple
+                                        class="filter-select-box" size="10">
+                                    {% if field.name in admin_class.readonly_field and not admin_class.is_add_form %}
+                                        {% for obj in m2m_menu_list %}
+                                            <option value={{ obj.id }} disabled>{{ obj }}</option>
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for obj in m2m_menu_list %}
+                                            <option ondblclick="MoveElementTo(this, 'id_{{ field.name }}_to','id_{{ field.name }}_from')"
+                                                    value={{ obj.id }}>{{ obj }}</option>
+                                        {% endfor %}
+                                    {% endif %}
+                                </select>
+                            </div>
+                            <div class="col-sm-1" style="width:3.333333%;margin-top:40px;padding: 10px;">
+                                <button type="button" style="background-color: white;border:0px;"
+                                        onclick="S_To_D('{{ field.name }}')">
+                                    <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+                                </button>
+                                <button type="button" style="background-color: white;border:0px;"
+                                        onclick="D_To_S('{{ field.name }}')">
+                                    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                                </button>
+                            </div>
+
+                            {% get_m2m_selectd_obj_list form_obj field as selectd_menu_list %}
+                            <div class="col-sm-2">
+                                <span>当前一级菜单</span>
+                                <select tag="perm_chosen_list" id="id_{{ field.name }}_to" name="{{ field.name }}"
+                                        multiple
+                                        class="filter-select-box" size="10">
+                                    {% if field.name in admin_class.readonly_field and not admin_class.is_add_form %}
+                                        {% for obj in selectd_menu_list %}
+                                            <option value={{ obj.id }} disabled>{{ obj }}</option>
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for obj in selectd_menu_list %}
+                                            <option value={{ obj.id }} ondblclick="MoveElementTo(this,'id_{{ field.name }}_from','id_{{ field.name }}_to')">{{ obj }}</option>
+                                        {% endfor %}
+                                        {{ form_obj.instance }}
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+                    {% elif field.name == 'user_permissions' %}
+                        <div class="form-group">
+                            {% get_m2m_perm_list admin_class field form_obj as m2m_perm_list %}
+                            <label class="col-sm-2 control-label">用户权限</label>
+                            <div class="col-sm-3">
+                                <span>可选用户权限</span>
+                                <select name='source_perm' id="id_{{ field.name }}_from" multiple
+                                        class="filter-select-box" size="10">
+                                    {% if field.name in admin_class.readonly_field and not admin_class.is_add_form %}
+                                        {% for obj in m2m_perm_list %}
+                                            <option value={{ obj.id }} disabled>{{ obj }}</option>
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for obj in m2m_perm_list %}
+                                            <option ondblclick="MoveElementTo(this, 'id_{{ field.name }}_to','id_{{ field.name }}_from')"
+                                                    value={{ obj.id }}>{{ obj }}</option>
+                                        {% endfor %}
+                                    {% endif %}
+                                </select>
+                            </div>
+                            <div class="col-sm-1" style="width:3.333333%;margin-top:40px;padding: 10px;">
+                                <button type="button" style="background-color: white;border:0px;"
+                                        onclick="S_To_D('{{ field.name }}')">
+                                    <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
+                                </button>
+                                <button type="button" style="background-color: white;border:0px;"
+                                        onclick="D_To_S('{{ field.name }}')">
+                                    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                                </button>
+                            </div>
+                            {% get_m2m_selectd_perm_list form_obj field as selectd_perm_list %}
+                            <div class="col-sm-3">
+                                <span>当前用户权限</span>
+                                <select tag="perm_chosen_list" id="id_{{ field.name }}_to" name="{{ field.name }}"
+                                        multiple
+                                        class="filter-select-box" size="10">
+                                    {% if field.name in admin_class.readonly_field and not admin_class.is_add_form %}
+                                        {% for obj in selectd_perm_list %}
+                                            <option value={{ obj.id }} disabled>{{ obj }}</option>
+                                        {% endfor %}
+                                    {% else %}
+                                        {% for obj in selectd_perm_list %}
+                                            <option value={{ obj.id }} ondblclick="MoveElementTo(this,'id_{{ field.name }}_from','id_{{ field.name }}_to')">{{ obj }}</option>
+                                        {% endfor %}
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="form-group">
+                            <lable class="col-sm-2 control-label">{{ field.label }}</lable>
+                            <div class="col-sm-5">
+                                {{ field }}
+                                <span style="color:grey">{{ field.help_text }}</span> {# help_text 表提示说明 #}
+                                <span style="color:red">{% err_info field %} </span>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                <span style="color:red;">{{ response_result.error }}</span>
+                <div class="form-group">
+                    <div class="col-sm-7">
+                        <button type="submit" class="btn btn-success pull-right">Save</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function MoveElementTo(ele, target_id, new_target_id) {
+            var opt_ele = "<option value='" + $(ele).val() + "' ondblclick=MoveElementTo(this,'" + new_target_id + "','" + target_id + "')>" + $(ele).text() + "</option>";
+            $("#" + target_id).append(opt_ele);
+            $(ele).remove()
+        }
+
+        function SelectAllChosenData() {
+            $("select[tag='roles_chosen_list'] option").each(function () {
+                $(this).prop('selected', true);
+            });
+            $("select[tag='perm_chosen_list'] option").each(function () {
+                $(this).prop('selected', true);
+            });
+
+            //remove all disabled attr
+            $("form").find("[disabled]").removeAttr("disabled");
+            return ture;
+        }
+
+        function S_To_D(target) {
+            var src_target_id = 'id_' + target + '_from';
+            var dst_target_id = 'id_' + target + '_to';
+            $('#' + src_target_id + ' option:selected').each(function () {
+                MoveElementTo($(this), dst_target_id, src_target_id)
+            })
+        }
+
+        function D_To_S(target) {
+            var src_target_id = 'id_' + target + '_from';
+            var dst_target_id = 'id_' + target + '_to';
+            $('#' + dst_target_id + ' option:selected').each(function () {
+                MoveElementTo($(this), src_target_id, dst_target_id)
+            })
+        }
+    </script>
+{% endblock %}

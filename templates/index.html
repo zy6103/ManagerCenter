@@ -1,0 +1,238 @@
+{% extends 'base.html' %}
+{% block header %}
+    <div class="modal fade" tabindex="-1" role="dialog" tag="reset_password" style="display: none;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">修改账号密码</h4>
+                </div>
+                <div class="modal-body">
+                    <form tag='reset_password' class="form-horizontal" method="POST">{% csrf_token %}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">账号</label>
+                            <div class="col-sm-10">
+                                <p class="form-control-static">email</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPassword" class="col-sm-2 control-label">Password</label>
+                            <div class="col-sm-10">
+                                <input type="password" class="form-control" id="inputPassword" name="password1"
+                                       placeholder="Password">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <lable for="inputPassword" class="col-sm-2 control-label">Password confirmation</lable>
+                            <div class="col-sm-10">
+                                <input type="password" class="form-control" id="inputPassword2" name="password2"
+                                       placeholder="Password confirmation">
+                            </div>
+                            <span style="color:grey"></span>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" onclick="close_reset_windows()">Close</button>
+                            <button type="button" class="btn btn-primary" onclick="SavePassword()">Save changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+
+    <ul class="nav navbar-top-links pull-left">
+        <!--Navigation toogle button-->
+        <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+        <li class="tgl-menu-btn">
+            <a class="mainnav-toggle" href="#">
+                <i class="fa fa-navicon fa-lg"></i>
+            </a>
+        </li>
+    </ul>
+    <ul class="nav navbar-top-links pull-right">
+        <li id="dropdown-user" class="dropdown">
+            <a href="#" data-toggle="dropdown" class="dropdown-toggle text-right" aria-expanded="false">
+                <span class="pull-right">
+                    <img class="img-circle img-user media-object" src="/static/img/av1.png"
+                         alt="Profile Picture">
+                </span>
+                <div class="username hidden-xs">{{ request.user.name }}</div>
+            </a>
+
+            <div class="dropdown-menu dropd own-menu-md dropdown-menu-right with-arrow panel-default">
+
+                <!-- User dropdown menu -->
+                <ul class="head-list">
+                    <li>
+                        <a href="{% url 'account_detail' %}">
+                            <i class="fa fa-user fa-fw fa-lg"></i> Profile
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <span class="badge badge-danger pull-right">x</span>
+                            <i class="fa fa-envelope fa-fw fa-lg"></i> Messages
+                        </a>
+                    </li>
+                    <li>
+                        <a onclick="ChangePassword()">
+                            <i class="fa fa-gear fa-fw fa-lg"></i>修改密码
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fa fa-question-circle fa-fw fa-lg"></i> Help
+                        </a>
+                    </li>
+                </ul>
+
+                <!-- Dropdown footer -->
+                <div class="pad-all text-right">
+                    <a href="{% url 'acc_logout' %}" class="btn btn-primary">
+                        <i class="fa fa-sign-out fa-fw"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+{% endblock %}
+
+{% block menu_left %}
+    {% for role in request.user.roles.all %}
+        {% for m_lv1 in role.menu_level1.all %}
+            {% if m_lv1.url_type == 0 %}
+                <li class="active-link">
+                    <a href="{% url m_lv1.url_name %}">
+                        <i class="fa fa-dashboard"></i>
+                        <span class="menu-title">
+                        <strong>{{ m_lv1.name }}</strong>
+                    </span>
+                    </a>
+
+                </li>
+            {% else %}
+                <li class="active-link">
+                    <a href="{{ m_lv1.url_name }}">
+                        <i class="fa fa-dashboard"></i>
+                        <span class="menu-title">
+                        <strong>{{ m_lv1.name }}</strong>
+                    </span>
+                    </a>
+                    <ul class="collapse" aria-expanded="false" style="height: 0px;">
+                        {% for m_lv2 in m_lv1.menulevel2_set.all %}
+                            <li><a href="{% url m_lv2.url_name %}">{{ m_lv2.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+{% endblock %}
+
+{% block container %}
+    右侧内容
+{% endblock %}
+
+{% block js %}
+    <script>
+
+        function CheckAllToggle(ele) {
+            if ($(ele).prop("checked")) {
+                $("input[tag='obj_checkbox']").prop("checked", true);
+            } else {
+                $("input[tag='obj_checkbox']").prop("checked", false);
+            }
+        }
+
+        function ActionSubmit(form_ele) {
+            var selected_ids = [];
+            $("input[tag='obj_checkbox']:checked").each(function () {
+                selected_ids.push($(this).val());
+            });
+            var selected_action = $('#action_list').val();
+            if (selected_ids.length == 0) {
+                alert("no object got selected");
+                return
+            }
+            if (!selected_action) {
+                alert("no action got selected");
+                return
+            }
+
+            // start submit
+            var selected_ids_ele = "<input name='selected_ids' type='hidden' value='" + selected_ids.toString() + "' >"
+            $(form_ele).append(selected_ids_ele);
+            return ture
+        }
+
+        function DeleteData() {
+            var select_id = [];
+            $("input[tag='obj_checkbox']:checked").each(function () {
+                select_id.push($(this).val());
+            })
+            if (select_id.length == 0) {
+                alert('请选择删除的数据')
+            }
+            $.ajax({
+                url: "{{ request.path }}delete/",
+                type: 'POST',
+                data: {'delete_id': select_id, csrfmiddlewaretoken: '{{ csrf_token }}'},
+                dataType: 'JSON',
+                traditional: true,
+                success: function (args) {
+                    if (args == 'ok') {
+                        location.reload()
+                    }
+                }
+
+            })
+        }
+
+        function SetPassword(id, acct_email) {
+            $('div[tag="reset_password"]').addClass('in');
+            $('div[tag="reset_password"]').css('display', 'block');
+            $('form[tag="reset_password"]').attr('active', '{{ request.path }}' + id + '/reset_password/')
+            $('p').each(function () {
+                if ($(this).text() == 'email') {
+                    $(this).text(acct_email)
+                }
+            })
+        }
+        function close_reset_windows() {
+            $('div[tag="reset_password"]').removeClass('in');
+            $('div[tag="reset_password"]').css('display', 'none');
+            window.location.reload(true);
+        }
+
+        function SavePassword() {
+            $.ajax({
+                url: $('form[tag="reset_password"]').attr('active'),
+                type: 'POST',
+                dataType: 'JSON',
+                async: false,
+                data: $('form[tag="reset_password"]').serialize(),
+                success: function (args) {
+                    if (args.status == 1) {
+                        alert(args.message);
+                        location.reload()
+                    } else {
+                        alert(args.error)
+                    }
+                }
+            })
+        }
+
+        function ChangePassword() {
+            $('div[tag="reset_password"]').addClass('in');
+            $('div[tag="reset_password"]').css('display', 'block');
+            $('form[tag="reset_password"]').attr('active', '/ChangePassword/');
+            $('p').each(function () {
+                if ($(this).text() == 'email') {
+                    $(this).text('{{ request.user }}')
+                }
+            })
+        }
+    </script>
+
+{% endblock %}

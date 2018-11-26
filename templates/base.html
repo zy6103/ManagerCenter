@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>总控台</title>
+    <!--Bootstrap Stylesheet [ REQUIRED ]-->
+    <link href="/static/plugin/nifty/css/bootstrap.min.css" rel="stylesheet">
+    <!--Nifty Stylesheet [ REQUIRED ]-->
+    <link href="/static/plugin/nifty/css/nifty.min.css" rel="stylesheet">
+    <!--Font Awesome [ OPTIONAL ]-->
+    <link href="/static/plugin/nifty/css/font-awesome.min.css" rel="stylesheet">
+    <!-- Create your own class to load custum image [ SAMPLE ]-->
+    <!--SCRIPT-->
+    <!--=================================================-->
+    <!--Page Load Progress Bar [ OPTIONAL ]-->
+    {#    <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">#}
+    <link href="/static/plugin/nifty/css/pace.min.css" rel="stylesheet">
+    <script src="/static/plugin/nifty/js/pace.min.js"></script>
+    <link id="theme" href="/static/plugin/nifty/css/themes/type-b/theme-ocean.min.css" rel="stylesheet">
+    {% block css %}{% endblock %}
+
+</head>
+<body class="nifty-ready  pace-done">
+<div id="container" class="effect mainnav-lg">
+    <header id="navbar">
+        <div id="navbar-container" class="boxed">
+            <div class="navbar-header">
+                <a href="#" class="navbar-brand">
+                    <div class="brand-title">
+                        <span class="brand-text" style="display: inline-block;letter-spacing:10px;font-size:25px;">运维中心</span>
+                    </div>
+                </a>
+            </div>
+            <!--Navbar Dropdown-->
+            <!--================================-->
+            <div class="navbar-content clearfix">
+                {% block header %}{% endblock %}
+            </div>
+            <!--================================-->
+            <!--End Navbar Dropdown-->
+
+        </div>
+    </header>
+    <!--===================================================-->
+    <!--END NAVBAR-->
+    <div class="boxed">
+        <!--CONTENT CONTAINER-->
+        <!--===================================================-->
+        <div id="content-container">
+            {% block container %}内容{% endblock %}
+
+
+        </div>
+
+        <!--===================================================-->
+        <nav id="mainnav-container">
+            <div id="mainnav">
+
+                <!--Menu-->
+                <!--================================-->
+                <div id="mainnav-menu-wrap" style="margin-top: 0px;">
+                    <div class="nano">
+                        <div class="nano-content">
+                            <ul id="mainnav-menu" class="list-group">
+                                <!--Menu list item-->
+                                {% block menu_left %}
+
+                                {% endblock %}
+                                <!--Menu list item-->
+                            </ul>
+
+                        </div>
+                    </div>
+                </div>
+                <!--================================-->
+                <!--End menu-->
+
+            </div>
+        </nav>
+
+    </div>
+
+</div>
+
+
+<!--jQuery [ REQUIRED ]-->
+<script src="/static/plugin/nifty/js/jquery-2.1.1.min.js"></script>
+<!--BootstrapJS [ RECOMMENDED ]-->
+<script src="/static/plugin/nifty/js/bootstrap.min.js"></script>
+<!--Fast Click [ OPTIONAL ]-->
+<script src="/static/plugin/nifty/js/fastclick.min.js"></script>
+<!--Nifty Admin [ RECOMMENDED ]-->
+<script src="/static/plugin/nifty/js/nifty.min.js"></script>
+{#<script src="/static/bootstrap/js/bootstrap.js"></script>#}
+{% block js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,108 @@
+运维通用管理中心
+
+适应人群：熟悉django开发
+目的：仅供参考使用，只需开发项目app即可，接入本控制台后在控制台中进行简单配置即可。
+
+功能：当前控制台是个最基础的配置管理中心，将常用的部分django admin功能进行了前台封装，实现了动态一级，二级菜单，角色，
+账号的创建，修改，删除，账号动态菜单和权限的分配。
+
+目录结构：
+    ManagerCenter\          项目目录
+        （urls, views)       项目路由，试图文件
+    configCenter\           项目配置中心APP
+        permissions\        权限目录
+        permission_dict.py  权限控制字典
+    templatetags\           自定义标签功能目录
+        config_tags.py      自定义标签文件
+    utils\                  通用功能
+        utils.py            通用功能模块
+        logger.py           通用的日志模块
+    custom_admin.py         自定义管理模块，此模块用来替代原始admin模块
+    forms.py                通用表单文件
+    (models, urls, views)   APP通用文件
+
+运行环境：运行在python3环境下，使用的第三方模块为：
+django 1.10
+pymysql 0.9.2
+
+程序运行原理：在项目运行时，执行如下：
+1：需要进行配置文件的修改，修改 settings文件，如下：
+    实例：创建mysql库名称：configcenter user:configcenter  passwd: configcenter
+    修改数据库：
+    DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'configcenter',
+        'USER': 'configcenter',
+        'PASSWORD': 'configcenter',
+        'HOST': 'mysql ip地址',
+        'PORT': 3306
+        }
+    }
+2：执行django 命令，进行库初始化
+    python manage.py makemigrations
+    python manage.py migrate
+
+2：导入用于初始化数据库的sql文件
+    进入mysql后，恢复configcenter库
+    mysql> use configcenter;
+    mysql> source conf.sql
+
+    超级管理员：admin@mc.com        密码：admin123
+
+3：启动项目及访问
+    访问：http://127.0.0.1:8000
+
+4：基础配置项说明
+    以管理员登录页面后，打开：配置中心，共有4个二级菜单，如下：
+        配置中心
+            一级菜单：实现主菜单项的添加，比如当前的配置中心就是一级菜单，这里需要注意的是，当添加的一级菜单下存在二级菜单时，
+                      这里一级菜单url type要使用：absolute_url， url name要使用#，不然二级菜单会出现无法打开的状态。
+                 添加的参数说明：
+                        Name： 一级菜单的名称
+                        Url type： 2个选项。
+                            alias：url为匿名
+                            absolute_url： url为绝对路径
+                        Url name： 根据上面的类型进行填写。
+            二级菜单：实现菜单子项的添加，比如这里的：角色，账号等这个级别的属于二级菜单。（个人也觉得这里有点绕，后续在优化）
+                添加的参数说明：
+                        Name：二级菜单名称
+                        Url name：url匿名
+                        Level2 to level1：所属的一级菜单
+            角色：实现所属角色的账号可访问的菜单
+                添加的参数说明：
+                        name：   角色名称
+                        一级菜单：角色关联的菜单，可实现所属当前角色的账号可访问到的菜单选项。
+            账号：实现普通账号的添加，角色的分配和授权。
+                添加的参数说明：
+                        Email address：  平台登录账号，email地址
+                        Name：   平台登录后，显示的名称
+                        角色：   账号归属的角色，此账号登录后，可查看到对应的菜单功能
+                        用户权限：账号授权，可授予当前账号可访问的url
+                        密码：登录密码
+
+5：添加新app实例说明：
+    以下演示添加：app01 相关操作步骤：
+    1：新项目app01开发完毕后，传入项目跟目录下
+    2：如果有数据库，需要初始化数据库：python manage.py makemigrations app01  / python manage.py migrate
+    3：修改settings：在 INSTALLED_APPS 添加：'app01.apps.App01Config',
+    4：修改urls中添加：url(r'^app01/', include('app01.urls')),
+    5：添加权限：configCenter -> models.py -> permissions -> ('app01_index_get', 'app01首页'),
+    6：添加自定义验证文件：permissions -> permission_dict.py -> perm_dict :
+            'app01_index_get': {
+                    'url_type': 0,
+                    'url': 'app01_index',
+                    'method': ['GET'],
+                    'args': []
+                },
+    7：执行数据库更新：python manage.py makemigrations  / python manage.py migrate
+    8：登录web 页面添加
+        1）：一级菜单
+            name: 自定义名称，如：app01
+            type：alias
+            url name：app01_index, (这里是app01项目下urls 中对应url首页的 name)
+        2）：角色添加 角色名称，然后绑定 app01 一级菜单
+        3）：账号 添加登录账号，角色关联app01，权限关联：app01首页
+    9：使用新建账号登录页面后，即可看到 app01菜单。
+
+另外说明：configCenter 里的custom_admin 是我重写了admin的常用功能，已完成使用上的配置，不需要修改。
